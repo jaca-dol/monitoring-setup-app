@@ -1,0 +1,13 @@
+# Keep LF in the repo so Prettier's check behaves the same on Windows and on
+# CI (ubuntu-latest). Without this, a fresh Windows clone fails format:check.
+* text=auto eol=lf
+
+# Binary / vendor blobs
+*.png binary
+*.webp binary
+*.gif binary
+*.jar binary
+*.so binary
+*.a binary
+*.tgz binary
+*.keystore binary

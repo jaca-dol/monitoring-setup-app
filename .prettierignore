@@ -1,0 +1,12 @@
+node_modules/
+coverage/
+
+# Vendor / generated native projects
+sdk/
+android/
+ios/
+vendor/
+
+# Source-of-truth documents — owned upstream, not ours to reformat
+CLAUDE.md
+docs/

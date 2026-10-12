@@ -1,0 +1,83 @@
+diff --git a/node_modules/react-native-nfc-manager/NfcManager.js b/node_modules/react-native-nfc-manager/NfcManager.js
+index ab3389d..9701fc6 100644
+--- a/node_modules/react-native-nfc-manager/NfcManager.js
++++ b/node_modules/react-native-nfc-manager/NfcManager.js
+@@ -237,7 +237,7 @@ class NfcManager {
+ 
+   getLaunchTagEvent = () => callNative('getLaunchTagEvent');
+ 
+-  setNdefPushMessage = (bytes) => callNative('setNdefPushMessage', [bytes]);
++  setNdefPushMessage = () => Promise.reject('this api is deprecated');
+ 
+   // -------------------------------------
+   // public only for iOS
+diff --git a/node_modules/react-native-nfc-manager/android/src/main/java/community/revteltech/nfc/NfcManager.java b/node_modules/react-native-nfc-manager/android/src/main/java/community/revteltech/nfc/NfcManager.java
+index 129d0d0..d4eac16 100644
+--- a/node_modules/react-native-nfc-manager/android/src/main/java/community/revteltech/nfc/NfcManager.java
++++ b/node_modules/react-native-nfc-manager/android/src/main/java/community/revteltech/nfc/NfcManager.java
+@@ -771,34 +771,6 @@ class NfcManager extends ReactContextBaseJavaModule implements ActivityEventList
+         }
+     }
+ 
+-    @ReactMethod
+-    public void setNdefPushMessage(ReadableArray rnArray, Callback callback) {
+-        synchronized(this) {
+-            if (techRequest == null && writeNdefRequest == null) {
+-                try {
+-                    Activity currentActivity = getCurrentActivity();
+-                    if (currentActivity == null) {
+-                        throw new RuntimeException("cannot get current activity");
+-                    }
+-
+-                    NdefMessage msgToPush = null;
+-                    if (rnArray != null) {
+-                        msgToPush = new NdefMessage(rnArrayToBytes(rnArray));
+-                    }
+-
+-                    NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(context);
+-                    nfcAdapter.setNdefPushMessage(msgToPush, currentActivity);
+-                    callback.invoke();
+-                } catch (Exception ex) {
+-                    Log.d(LOG_TAG, "sendNdefPushMessage fail, " + ex.getMessage());
+-                    callback.invoke("sendNdefPushMessage fail");
+-                }
+-            } else {
+-                callback.invoke("please first cancel existing tech or write request");
+-            }
+-        }
+-    }
+-
+     @ReactMethod
+     public void start(Callback callback) {
+         NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(context);
+@@ -931,6 +903,16 @@ class NfcManager extends ReactContextBaseJavaModule implements ActivityEventList
+         callback.invoke(null, isForegroundEnabled);
+     }
+ 
++    @ReactMethod
++    public void addListener(String eventName) {
++        // Keep: Required for RN built in Event Emitter Calls.
++    }
++
++    @ReactMethod
++    public void removeListeners(Integer count) {
++        // Keep: Required for RN built in Event Emitter Calls.
++    }
++
+     @Override
+     public void onHostResume() {
+         Log.d(LOG_TAG, "onResume");
+@@ -1008,7 +990,12 @@ class NfcManager extends ReactContextBaseJavaModule implements ActivityEventList
+         Activity activity = getCurrentActivity();
+         Intent intent = new Intent(activity, activity.getClass());
+         intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+-        return PendingIntent.getActivity(activity, 0, intent, 0);
++        
++        int flag = 0;
++        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
++          flag = PendingIntent.FLAG_MUTABLE;
++        }
++        return PendingIntent.getActivity(activity, 0, intent, flag);
+     }
+ 
+     private IntentFilter[] getIntentFilters() {

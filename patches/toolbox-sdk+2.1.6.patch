@@ -1,0 +1,26 @@
+diff --git a/node_modules/toolbox-sdk/lib/module/model/utils/migrationUtils.js b/node_modules/toolbox-sdk/lib/module/model/utils/migrationUtils.js
+index 135795b..1f9436e 100644
+--- a/node_modules/toolbox-sdk/lib/module/model/utils/migrationUtils.js
++++ b/node_modules/toolbox-sdk/lib/module/model/utils/migrationUtils.js
+@@ -442,7 +442,7 @@ export function getSettingJSON(object, deviceInfo, _prevDeviceInfo, isTemplateMo
+ 
+   //避免出现没修改密码，却将设备密码写入的问题
+   if (_.has(settingObject, 'password') && deviceInfo.changePassword !== true) {
+-    console.debug('getSettingJSON', `setting has password but not change password action, will drop the password -> ${settingObject['password']}`);
++    console.debug('getSettingJSON', `setting has password but not change password action, will drop the password -> ${settingObject['password'] == null ? '<none>' : '<redacted:' + String(settingObject['password']).length + ' chars>'}`);
+     settingObject['password'] = undefined;
+   }
+   if (deviceInfo.distanceRange) {
+diff --git a/node_modules/toolbox-sdk/src/model/utils/migrationUtils.ts b/node_modules/toolbox-sdk/src/model/utils/migrationUtils.ts
+index 16e0810..6c3fc89 100644
+--- a/node_modules/toolbox-sdk/src/model/utils/migrationUtils.ts
++++ b/node_modules/toolbox-sdk/src/model/utils/migrationUtils.ts
+@@ -593,7 +593,7 @@ export function getSettingJSON(object: Record<string, any>, deviceInfo: Partial<
+ 
+ 	//避免出现没修改密码，却将设备密码写入的问题
+ 	if(_.has(settingObject, 'password') && deviceInfo.changePassword !== true) {
+-		console.debug('getSettingJSON', `setting has password but not change password action, will drop the password -> ${settingObject['password']}`);
++		console.debug('getSettingJSON', `setting has password but not change password action, will drop the password -> ${settingObject['password'] == null ? '<none>' : '<redacted:' + String(settingObject['password']).length + ' chars>'}`);
+ 		settingObject['password'] = undefined;
+ 	}
+ 
