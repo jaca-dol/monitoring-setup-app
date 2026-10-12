@@ -24,3 +24,97 @@ index 16e0810..6c3fc89 100644
  		settingObject['password'] = undefined;
  	}
  
+diff --git a/node_modules/toolbox-sdk/lib/module/service/password/DevicePasswordManager.js b/node_modules/toolbox-sdk/lib/module/service/password/DevicePasswordManager.js
+index 3cd023b..89d3e42 100644
+--- a/node_modules/toolbox-sdk/lib/module/service/password/DevicePasswordManager.js
++++ b/node_modules/toolbox-sdk/lib/module/service/password/DevicePasswordManager.js
+@@ -302,9 +302,33 @@ DevicePasswordManager.snIdAssociationStorage = new Storage({
+ /**
+  * 密码存储
+  */
+-DevicePasswordManager.passwordStorage = new Storage({
+-  id: 'dp',
+-  encryptionKey: '7fh4yC5XqG9SkACt2vcvY0333KbbP2lvMK7iDDCGVTE'
++// PATCHED (dol-sensors): the shipped key was a literal shared by every copy
++// of this SDK. See patches/README.md and docs/stage5-security-review.md.
++DevicePasswordManager.__encryptionKey = null;
++DevicePasswordManager.__passwordStorage = null;
++DevicePasswordManager.configurePasswordStorage = function (options) {
++  if (!options || typeof options.encryptionKey !== 'string' || options.encryptionKey.length < 16) {
++    throw new Error('configurePasswordStorage requires an encryptionKey of at least 16 characters');
++  }
++  DevicePasswordManager.__encryptionKey = options.encryptionKey;
++  DevicePasswordManager.__passwordStorage = null;
++};
++Object.defineProperty(DevicePasswordManager, 'passwordStorage', {
++  configurable: true,
++  get: function () {
++    if (!DevicePasswordManager.__encryptionKey) {
++      throw new Error(
++        'DevicePasswordManager.configurePasswordStorage() must be called before device passwords are read or written.'
++      );
++    }
++    if (!DevicePasswordManager.__passwordStorage) {
++      DevicePasswordManager.__passwordStorage = new Storage({
++        id: 'dp',
++        encryptionKey: DevicePasswordManager.__encryptionKey
++      });
++    }
++    return DevicePasswordManager.__passwordStorage;
++  }
+ });
+ /**
+  * 缓存临时密码
+diff --git a/node_modules/toolbox-sdk/src/service/password/DevicePasswordManager.ts b/node_modules/toolbox-sdk/src/service/password/DevicePasswordManager.ts
+index 24f6095..b02dc57 100644
+--- a/node_modules/toolbox-sdk/src/service/password/DevicePasswordManager.ts
++++ b/node_modules/toolbox-sdk/src/service/password/DevicePasswordManager.ts
+@@ -35,10 +35,28 @@ export class DevicePasswordManager {
+ 	/**
+ 	 * 密码存储
+ 	 */
+-	private static passwordStorage = new Storage({
+-		id: 'dp',
+-		encryptionKey: '7fh4yC5XqG9SkACt2vcvY0333KbbP2lvMK7iDDCGVTE'
+-	});
++	// PATCHED (dol-sensors): key injected rather than hardcoded.
++	private static __encryptionKey: string | null = null;
++
++	private static __passwordStorage: Storage | null = null;
++
++	public static configurePasswordStorage(options: {encryptionKey: string}): void {
++		if (!options || typeof options.encryptionKey !== 'string' || options.encryptionKey.length < 16) {
++			throw new Error('configurePasswordStorage requires an encryptionKey of at least 16 characters');
++		}
++		this.__encryptionKey = options.encryptionKey;
++		this.__passwordStorage = null;
++	}
++
++	private static get passwordStorage(): Storage {
++		if (!this.__encryptionKey) {
++			throw new Error('DevicePasswordManager.configurePasswordStorage() must be called before device passwords are read or written.');
++		}
++		if (!this.__passwordStorage) {
++			this.__passwordStorage = new Storage({ id: 'dp', encryptionKey: this.__encryptionKey });
++		}
++		return this.__passwordStorage;
++	}
+ 
+ 	/**
+ 	 * 缓存临时密码
+diff --git a/node_modules/toolbox-sdk/lib/typescript/src/service/password/DevicePasswordManager.d.ts b/node_modules/toolbox-sdk/lib/typescript/src/service/password/DevicePasswordManager.d.ts
+index 1baeffc..aaacfc8 100644
+--- a/node_modules/toolbox-sdk/lib/typescript/src/service/password/DevicePasswordManager.d.ts
++++ b/node_modules/toolbox-sdk/lib/typescript/src/service/password/DevicePasswordManager.d.ts
+@@ -9,7 +9,10 @@ export declare class DevicePasswordManager {
+     /**
+      * 密码存储
+      */
+-    private static passwordStorage;
++    private static __encryptionKey;
++    private static __passwordStorage;
++    static configurePasswordStorage(options: {encryptionKey: string}): void;
++    private static get passwordStorage();
+     /**
+      * 缓存临时密码
+      */

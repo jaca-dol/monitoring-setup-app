@@ -59,6 +59,9 @@ Sizes are rough effort bands, not calendar dates — actual duration depends on 
 | 16 | Startup NFC-capability check with clear messaging on unsupported handsets, plus minimum-OS-version gating (REQ-A-18) | S | — |
 | 17 | Packaging/naming: distinct bundle ID/package name, verify coexistence with SmartAdjust on one device (REQ-A-19) | S | **Blocker #4** (app name) |
 | 18 | End-to-end hardware pass across all three device types, both band groups where applicable | M | Everything above |
+| 19 | Per-channel measurement calibration offsets (EM300-TH, EM500-CO2-T-H) | M | Task 13 — **not in the PRD**; needs a requirement and a decision on permitted ranges |
+| 20 | Guided step-by-step setup, one guide per sensor type, over a shared runner | M | Tasks 6, 13 — **not in the PRD**; step content needs field input, architecture does not |
+| 21 | Animated scan indicator, per-sensor tag-location illustrations, phone antenna view | S–M | **Not in the PRD**; illustrations blocked on artwork or photographing the devices |
 
 ---
 
@@ -87,10 +90,35 @@ A dedicated review of password/AppKey handling before you build the write path �
 **Stage 6 — Write path (task 13)**
 The apply-settings flow, built last among the NFC work because it's the highest-consequence one (a bad write can brick a device) and benefits most from everything above already being solid.
 
-**Stage 7 — Secondary features (task 14)**
+**Stage 7 — Measurement calibration (task 19)**
+Per-channel additive calibration offsets on the EM300-TH and EM500-CO2-T-H, matching the vendor
+app's current/offset/final editor. New scope raised by Martin, **not covered by the PRD** — see
+`docs/stage7-calibration.md` for the design, and for three findings that shape it: the iDOL53
+cannot be calibrated this way at all, nothing beneath us validates the entered value, and a
+non-zero offset has to be visible on the read screen rather than only in an editor. Depends on
+Stage 6 being proven on hardware, since a calibration write that fails silently corrupts
+reported data rather than merely not applying.
+
+**Stage 8 — Guided setup (task 20)**
+A step-by-step commissioning guide per sensor type, alongside (not replacing) the expert screen.
+New scope, **not covered by the PRD** — see `docs/stage8-guided-setup.md`. A guide is data, not
+a hand-written wizard: six step kinds, one pure reducer, one definition file per device type, so
+a new sensor adds a file and nothing else. Needs no new transport, model or protocol work — it
+sequences what Stage 4 and 6 already do. Blocked on field input for the actual step content, but
+the architecture can be built and tested against placeholder copy.
+
+**Stage 9 — Motion and NFC placement guidance (task 21)**
+An animated scan indicator, an illustration of where the tag sits on each sensor, and — where
+Android will tell us — where the antenna sits on the phone in hand. New scope, **not in the
+PRD**; see `docs/stage9-motion-and-placement.md`. Can land alongside Stage 8, since the scan
+animation belongs with the guide. Needs no new dependency: the animation is `translateY` plus
+`opacity` on the native driver, which is what keeps it running while the SDK occupies the JS
+thread.
+
+**Stage 10 — Secondary features (task 14)**
 Save-to-profile / share-settings, once the core commissioning flow works end to end.
 
-**Stage 8 — Release readiness (tasks 15, 17, 18)**
+**Stage 11 — Release readiness (tasks 15, 17, 18)**
 Offline validation, packaging/coexistence with SmartAdjust, and a full hardware regression pass across all three device types.
 
 This ordering front-loads the two things most likely to derail the project (raw NFC transport, and the still-unresolved Milesight protocol dependency) so you find out early whether the plan holds up, rather than discovering it after the UI is polished.

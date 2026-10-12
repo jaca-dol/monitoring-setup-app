@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SmartAdjust — concept screens per sensor type</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#1C3E6F;--navy-deep:#143A66;--navy-soft:#8FA6C0;--page:#EEF0F2;--card:#FFF;--divider:#E6E8EA;
+--ink:#1C1C1C;--muted:#6B7280;--green:#3E8B52;--amber-bg:#FDF6E3;--toggle-off:#C9CDD2;
+--shadow:0 1px 3px rgba(16,24,40,.08),0 1px 2px rgba(16,24,40,.04)}
+*{box-sizing:border-box}
+body{margin:0;background:#F6F7F8;color:var(--ink);font-family:'Poppins',-apple-system,'Segoe UI',Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1140px;margin:0 auto;padding:30px 22px 44px}
+.doc-head{border-bottom:2px solid var(--navy);padding-bottom:14px;display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap}
+.doc-head .org{font-size:12px;font-weight:600;color:var(--navy)}
+.doc-head h1{font-size:23px;font-weight:600;margin:6px 0 4px;letter-spacing:-.02em}
+.doc-head p{margin:0;color:var(--muted);font-size:12.5px;line-height:1.5;max-width:80ch}
+.meta{display:flex;gap:20px;font-size:11.5px;flex:none}
+.meta div span{display:block;color:var(--muted);font-size:10px;margin-bottom:1px}
+.meta div b{font-weight:500}
+.row4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:20px 0 4px;align-items:start}
+.col{min-width:0}
+.col .cap{font-size:13px;font-weight:600;margin:0 0 8px;letter-spacing:-.005em}
+.col .cap span{display:block;font-weight:400;font-size:10.5px;color:var(--muted);line-height:1.4;margin-top:2px}
+.phone{zoom:.735;width:320px;border-radius:26px;overflow:hidden;box-shadow:0 6px 20px rgba(16,24,40,.13);background:var(--page);border:1px solid #DADDE1}
+.status{background:var(--navy);color:#fff;font-size:10.5px;padding:6px 14px 2px;display:flex;justify-content:space-between;opacity:.85}
+.appbar{background:var(--navy);color:#fff;padding:6px 14px 14px;display:flex;align-items:flex-start;gap:12px;position:relative}
+.appbar .back{font-size:19px;line-height:1;margin-top:2px}
+.appbar .titles{flex:1;text-align:center}
+.appbar .titles b{display:block;font-size:16px;font-weight:600}
+.appbar .titles span{display:block;font-size:10.5px;color:var(--navy-soft);margin-top:1px}
+.appbar .gear{font-size:16px;margin-top:2px}
+.body{padding:14px 12px 12px}
+.sechead{display:flex;align-items:center;gap:10px;margin:14px 4px 9px;position:relative}
+.sechead .ico{font-size:15px;width:20px;text-align:center}
+.sechead b{flex:1;font-size:16px;font-weight:600}
+.sechead .help{width:19px;height:19px;border:1.6px solid #444;border-radius:50%;font-size:11px;display:flex;align-items:center;justify-content:center;color:#444}
+.card{background:var(--card);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;position:relative}
+.r{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--divider);position:relative}
+.r:last-child{border-bottom:none}
+.r .lab{flex:1;min-width:0}
+.r .lab b{display:block;font-size:14px;font-weight:500}
+.r .lab span{display:block;font-size:11.5px;color:var(--muted);margin-top:1px}
+.r .val{font-size:13.5px;font-weight:500;text-align:right;white-space:nowrap}
+.r .val em{display:block;font-style:normal;font-size:11.5px;color:var(--muted);font-weight:400}
+.r .chev{color:#9AA0A6;font-size:15px}
+.tog{width:44px;height:24px;border-radius:12px;background:var(--toggle-off);position:relative;flex:none}
+.tog::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25)}
+.tog.on{background:#B9C7DA}
+.tog.on::after{left:22px;background:var(--navy-deep);box-shadow:none}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px}
+.pill{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px}
+.pill.ok{background:#E9F3EC;color:var(--green)}
+.pill.band{background:#E8EDF4;color:var(--navy)}
+.pill.ro{background:#EDEFF1;color:#5A6472}
+/* measurement hero */
+.meas{padding:16px 14px 14px;text-align:center;position:relative}
+.meas .one{font-size:38px;font-weight:600;line-height:1.05;letter-spacing:-.02em}
+.meas .one u{text-decoration:none;font-size:17px;font-weight:500;color:var(--muted);margin-left:4px}
+.meas .name{font-size:12.5px;color:var(--muted);margin-top:2px}
+.meas .trio{display:flex;justify-content:space-around;gap:6px;margin-top:2px}
+.meas .trio div{flex:1}
+.meas .trio b{display:block;font-size:21px;font-weight:600;letter-spacing:-.01em}
+.meas .trio b u{text-decoration:none;font-size:11px;font-weight:500;color:var(--muted)}
+.meas .trio span{display:block;font-size:10.5px;color:var(--muted);margin-top:1px}
+.meas .stamp{font-size:11px;color:var(--muted);margin-top:10px;padding-top:9px;border-top:1px solid var(--divider)}
+.banner{display:flex;gap:10px;padding:12px 14px;border-radius:14px;font-size:12px;line-height:1.45;background:var(--amber-bg);color:#7A5510;border:1px solid #F0E2BC;position:relative}
+.banner b{display:block;font-weight:600;margin-bottom:2px}
+.btnrow{display:flex;gap:10px;margin:14px 2px 0}
+.btn2{flex:1;background:#fff;border-radius:14px;box-shadow:var(--shadow);padding:12px 8px;text-align:center;font-size:13px;font-weight:500;color:var(--navy)}
+.apply{margin:14px 2px 6px;background:var(--green);color:#fff;border-radius:14px;padding:15px;display:flex;align-items:center;justify-content:center;gap:12px;font-size:15px;font-weight:600;box-shadow:0 2px 6px rgba(62,139,82,.3);position:relative}
+.navbar{background:#C8D2DC;height:34px;display:flex;align-items:center;justify-content:space-around;color:#4A5A6A;font-size:13px}
+.co{position:absolute;width:21px;height:21px;border-radius:50%;background:var(--navy);color:#fff;font-size:11.5px;font-weight:600;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #fff,0 1px 3px rgba(0,0,0,.3);z-index:5}
+.an{padding-left:34px !important}
+.an > .co{left:7px;top:50%;transform:translateY(-50%)}
+.meas.an{padding-left:14px !important}
+.meas.an > .co{left:8px;top:14px;transform:none}
+.appbar > .co{right:40px;top:26px}
+.legend-wrap{margin-top:18px;border-top:1px solid var(--divider);padding-top:16px}
+.legend-wrap h2{font-size:13.5px;font-weight:600;margin:0 0 10px}
+table.leg{width:100%;border-collapse:collapse;font-size:11.5px}
+table.leg th{text-align:left;font-weight:600;font-size:10px;color:var(--muted);padding:0 10px 6px 0;border-bottom:1px solid var(--divider)}
+table.leg td{padding:6px 10px 6px 0;border-bottom:1px solid #F1F2F3;vertical-align:top;line-height:1.45}
+table.leg td.s{width:26px}
+table.leg td.q{width:96px;font-weight:600;color:var(--navy);white-space:nowrap}
+table.leg td.n{width:132px;font-weight:600}
+.new{background:#FFF6E5;color:#8A6100;font-size:9.5px;font-weight:600;padding:1px 6px;border-radius:20px;margin-left:4px;vertical-align:2px}
+footer{margin-top:16px;font-size:11px;color:var(--muted);line-height:1.55}
+@media print{body{background:#fff}.wrap{max-width:none;padding:0}@page{size:A3 landscape;margin:10mm}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="doc-head">
+    <div>
+      <div class="org">dol-sensors A/S — Product Development</div>
+      <h1>SmartAdjust concept screens</h1>
+      <p>One screen per sensor type. Each opens on the last value the sensor measured, then the device, network
+         and power read-out. Callouts map to the app specification. The channel plan is set with the region and
+         is not shown to the user.</p>
+    </div>
+    <div class="meta">
+      <div><span>Reference</span><b>PRD-WIRELESS-US-001-B</b></div>
+      <div><span>Version</span><b>Concept 0.3</b></div>
+      <div><span>Status</span><b>For discussion</b></div>
+    </div>
+  </header>
+  <div class="row4">
+    <div class="col">
+      <p class="cap">iDOL53 Ammonia<span>DOL53 sensor + UC501 + PSU, one article</span></p>
+      <div class="phone">
+        <div class="status"><span>15.17</span><span>◍ ▪ 62</span></div>
+        <div class="appbar"><div class="back">←</div>
+          <div class="titles"><b>iDOL53 Ammonia</b><span>UC501 FW 1.3.4 · HW V3 · -915M</span></div>
+          <div class="gear">⚙</div><span class="co">1</span></div>
+        <div class="body">
+          <div class="sechead"><span class="ico">⏻</span><b>Control</b><span class="help">?</span></div>
+          <div class="card">
+            <div class="r an"><span class="co">2</span><div class="lab"><b>Device</b><span>On</span></div><div class="tog on"></div></div>
+            <div class="r"><div class="lab"><b>Restart</b><span>Keeps the configuration</span></div><div class="chev">→</div></div>
+          </div>
+          <div class="sechead"><span class="ico">◎</span><b>Measurement</b><span class="help">?</span></div>
+          <div class="card">
+            <div class="meas an"><span class="co">3</span>
+              <div class="one">12<u>ppm</u></div>
+              <div class="name">Ammonia, NH₃</div>
+              <div class="stamp">Read from the sensor · 15.17</div>
+            </div>
+          </div>
+          <div class="sechead"><span class="ico">▮</span><b>Device</b><span class="help">?</span></div>
+          <div class="card">
+            <div class="r"><div class="lab"><b>Configuration</b><span>iDOL53 ammonia · RS232</span></div><div class="chev">→</div></div>
+            <div class="r an"><span class="co">4</span><div class="lab"><b>Firmware / hardware</b></div><div class="val">1.3.4 · V3<em>Qualified revision</em></div></div>
+            <div class="r"><div class="lab"><b>DevEUI</b></div><div class="val mono">24E124136C191967</div></div>
+            <div class="r"><div class="lab"><b>AppKey</b><span>Loaded in production</span></div><div class="val"><span class="pill ok">Verified</span></div></div>
+          </div>
+          <div class="sechead"><span class="ico">◉</span><b>Network</b><span class="help">?</span></div>
+          <div class="card">
+            <div class="r an"><span class="co">5</span><div class="lab"><b>Region</b><span>Change to AU915 or AS923</span></div><div class="val">US915 <span class="chev">→</span></div></div>
+            <div class="r"><div class="lab"><b>Join status</b></div><div class="val">Joined<em>4 min ago</em></div></div>
+            <div class="r"><div class="lab"><b>Signal</b><span>−97 dBm · SNR 6.5 dB</span></div><div class="val"><span class="pill ok">Good</span></div></div>
+          </div>
+          <div class="sechead"><span class="ico">⚡</span><b>Power</b><span class="help">?</span></div>
+          <div class="card">
+            <div class="r an"><span class="co">6</span><div class="lab"><b>Supply</b></div><div class="val">24 V present</div></div>
+            <div class="r"><div class="lab"><b>Backup battery</b><span>Not the service life</span></div><div class="val">96 %</div></div>
+            <div class="r"><div class="lab"><b>Reporting interval</b><span>Set from the gateway</span></div><div class="val">10 min <span class="pill ro">Read only</span></div></div>
+          </div>
+          <div class="btnrow"><div class="btn2">↧ Save to profile</div><div class="btn2">↪ Share settings</div></div>
+          <div class="apply"><span>))</span> Apply sensor settings</div>
+        </div>
+        <div class="navbar"><span>|||</span><span>◯</span><span>‹</span></div>
+      </div>
+    </div>
+
+    <div class="col">
+      <p class="cap">UC501 serial<span>Two-way RS232 converter</span></p>
+      <div class="phone">
+        <div class="status"><span>15.17</span><span>◍ ▪ 62</span></div>
+        <div class="appbar"><div class="back">←</div>
+          <div class="titles"><b>UC501 serial</b><span>FW 1.3.4 · HW V3 · -915M</span></div>
+          <div class="gear">⚙</div></div>
+        <div class="body">
+          <div class="sechead"><span class="ico">⏻</span><b>Control</b><span class="help">?</span></div>
+          <div class="card">
+            <div class="r an"><span class="co">1</span><div class="lab"><b>Device</b><span>On</span></div><div class="tog on"></div></div>
+            <div class="r"><div class="lab"><b>Restart</b><span>Keeps the configuration</span></div><div class="chev">→</div></div>
+          </div>
+          <div class="sechead"><span class="ico">◎</span><b>Measurement</b><span class="help">?</span></div>
+          <div class="card">
+            <div class="meas an"><span class="co">2</span>
+              <div class="one">47.2</div>
+              <div class="name">Serial channel 1 · decoded</div>
+              <div class="stamp">Serial read OK · 14 bytes · 15.17</div>
+            </div>
+          </div>
+          <div class="sechead"><span class="ico">▮</span><b>Device</b><span class="help">?</span></div>
+          <div class="card">
+            <div class="r an"><span class="co">3</span><div class="lab"><b>Configuration</b><span>RS232 generic · two-way</span></div><div class="chev">→</div></div>
+            <div class="r"><div class="lab"><b>Baud / format</b></div><div class="val">9 600<em>8 · none · 1</em></div></div>
+            <div class="r"><div class="lab"><b>Poll interval</b><span>Follows the reporting interval</span></div><div class="val">10 min <span class="pill ro">Read only</span></div></div>
+            <div class="r"><div class="lab"><b>Firmware / hardware</b></div><div class="val">1.3.4 · V3<em>Qualified revision</em></div></div>
+            <div class="r"><div class="lab"><b>DevEUI</b></div><div class="val mono">24E124136C1919A2</div></div>
+            <div class="r"><div class="lab"><b>AppKey</b><span>Loaded in production</span></div><div class="val"><span class="pill ok">Verified</span></div></div>
+          </div>
+          <div class="sechead"><span class="ico">◉</span><b>Network</b><span class="help">?</span></div>
+          <div class="card">
+            <div class="r"><div class="lab"><b>Region</b><span>Change to AU915 or AS923</span></div><div class="val">US915 <span class="chev">→</span></div></div>
+            <div class="r"><div class="lab"><b>Join status</b></div><div class="val">Joined<em>2 min ago</em></div></div>
+            <div class="r"><div class="lab"><b>Signal</b><span>−89 dBm · SNR 9.0 dB</span></div><div class="val"><span class="pill ok">Good</span></div></div>
+          </div>
+          <div class="sechead"><span class="ico">⚡</span><b>Power</b><span class="help">?</span></div>
+          <div class="card">
+            <div class="r"><div class="lab"><b>Supply</b></div><div class="val">24 V present</div></div>
+            <div class="r"><div class="lab"><b>Backup battery</b></div><div class="val">94 %</div></div>
+          </div>
+          <div class="btnrow"><div class="btn2">↧ Save to profile</div><div class="btn2">↪ Share settings</div></div>
+          <div class="apply"><span>))</span> Apply sensor settings</div>
+        </div>
+        <div class="navbar"><span>|||</span><span>◯</span><span>‹</span></div>
+      </div>
+    </div>
+
+    <div class="col">
+      <p class="cap">EM500-CO2-T-H<span>True wireless CO₂, temperature, humidity</span></p>
+      <div class="phone">
+        <div class="status"><span>15.17</span><span>◍ ▪ 62</span></div>
+        <div class="appbar"><div class="back">←</div>
+          <div class="titles"><b>EM500-CO2</b><span>FW 1.24 · HW v2 · -915M</span></div>
+          <div class="gear">⚙</div></div>
+        <div class="body">
+          <div class="sechead"><span class="ico">⏻</span><b>Control</b><span class="help">?</span></div>
+          <div class="card">
+            <div class="r an"><span class="co">1</span><div class="lab"><b>Device</b><span>On</span></div><div class="tog on"></div></div>
+            <div class="r"><div class="lab"><b>Restart</b><span>Keeps the configuration</span></div><div class="chev">→</div></div>
+          </div>
+          <div class="sechead"><span class="ico">◎</span><b>Measurement</b><span class="help">?</span></div>
+          <div class="card">
+            <div class="meas an"><span class="co">2</span>
+              <div class="trio">
+                <div><b>612<u>ppm</u></b><span>CO₂</span></div>
+                <div><b>21.4<u>°C</u></b><span>Temp.</span></div>
+                <div><b>58<u>%</u></b><span>Humidity</span></div>
+              </div>
+              <div class="stamp">Read from the sensor · 15.17</div>
+            </div>
+          </div>
+          <div class="sechead"><span class="ico">▮</span><b>Device</b><span class="help">?</span></div>
+          <div class="card">
+            <div class="r"><div class="lab"><b>Type</b></div><div class="val">EM500-CO2 <span class="pill band">-915M</span></div></div>
+            <div class="r"><div class="lab"><b>Firmware / hardware</b></div><div class="val">1.24 · v2<em>Qualified revision</em></div></div>
+            <div class="r"><div class="lab"><b>DevEUI</b></div><div class="val mono">24E124126A148401</div></div>
+            <div class="r"><div class="lab"><b>AppKey</b><span>Loaded in production</span></div><div class="val"><span class="pill ok">Verified</span></div></div>
+          </div>
+          <div class="sechead"><span class="ico">◉</span><b>Network</b><span class="help">?</span></div>
+          <div class="card">
+            <div class="r an"><span class="co">3</span><div class="lab"><b>Region</b><span>Change to AU915 or AS923</span></div><div class="val">US915 <span class="chev">→</span></div></div>
+            <div class="r"><div class="lab"><b>Join status</b></div><div class="val">Joined<em>11 min ago</em></div></div>
+            <div class="r"><div class="lab"><b>Signal</b><span>−104 dBm · SNR 2.5 dB</span></div><div class="val"><span class="pill band">Marginal</span></div></div>
+          </div>
+          <div class="sechead"><span class="ico">⚡</span><b>Power</b><span class="help">?</span></div>
+          <div class="card">
+            <div class="r an"><span class="co">4</span><div class="lab"><b>Battery</b><span>Service life at 10 min</span></div><div class="val">96 %</div></div>
+            <div class="r"><div class="lab"><b>Reporting interval</b><span>Set from the gateway</span></div><div class="val">10 min <span class="pill ro">Read only</span></div></div>
+          </div>
+          <div class="btnrow"><div class="btn2">↧ Save to profile</div><div class="btn2">↪ Share settings</div></div>
+          <div class="apply"><span>))</span> Apply sensor settings</div>
+        </div>
+        <div class="navbar"><span>|||</span><span>◯</span><span>‹</span></div>
+      </div>
+    </div>
+
+    <div class="col">
+      <p class="cap">EM300-TH<span>True wireless temperature and humidity, EU</span></p>
+      <div class="phone">
+        <div class="status"><span>15.17</span><span>◍ ▪ 62</span></div>
+        <div class="appbar"><div class="back">←</div>
+          <div class="titles"><b>EM300-TH</b><span>FW 1.16 · HW v2 · -868M</span></div>
+          <div class="gear">⚙</div></div>
+        <div class="body">
+          <div class="sechead"><span class="ico">⏻</span><b>Control</b><span class="help">?</span></div>
+          <div class="card">
+            <div class="r an"><span class="co">1</span><div class="lab"><b>Device</b><span>On</span></div><div class="tog on"></div></div>
+            <div class="r"><div class="lab"><b>Restart</b><span>Keeps the configuration</span></div><div class="chev">→</div></div>
+          </div>
+          <div class="sechead"><span class="ico">◎</span><b>Measurement</b><span class="help">?</span></div>
+          <div class="card">
+            <div class="meas an"><span class="co">2</span>
+              <div class="trio">
+                <div><b>18.9<u>°C</u></b><span>Temperature</span></div>
+                <div><b>62<u>%</u></b><span>Humidity</span></div>
+              </div>
+              <div class="stamp">Read from the sensor · 15.17</div>
+            </div>
+          </div>
+          <div class="sechead"><span class="ico">▮</span><b>Device</b><span class="help">?</span></div>
+          <div class="card">
+            <div class="r"><div class="lab"><b>Type</b></div><div class="val">EM300-TH <span class="pill band">-868M</span></div></div>
+            <div class="r"><div class="lab"><b>Firmware / hardware</b></div><div class="val">1.16 · v2<em>Qualified revision</em></div></div>
+            <div class="r"><div class="lab"><b>DevEUI</b></div><div class="val mono">24E124136B502217</div></div>
+            <div class="r"><div class="lab"><b>AppKey</b><span>Loaded in production</span></div><div class="val"><span class="pill ok">Verified</span></div></div>
+          </div>
+          <div class="sechead"><span class="ico">◉</span><b>Network</b><span class="help">?</span></div>
+          <div class="card">
+            <div class="r an"><span class="co">3</span><div class="lab"><b>Region</b><span>Fixed on EU hardware</span></div><div class="val">EU868</div></div>
+            <div class="r"><div class="lab"><b>Join status</b></div><div class="val">Joined<em>7 min ago</em></div></div>
+            <div class="r"><div class="lab"><b>Signal</b><span>−91 dBm · SNR 8.5 dB</span></div><div class="val"><span class="pill ok">Good</span></div></div>
+          </div>
+          <div class="sechead"><span class="ico">⚡</span><b>Power</b><span class="help">?</span></div>
+          <div class="card">
+            <div class="r"><div class="lab"><b>Battery</b></div><div class="val">91 %</div></div>
+            <div class="r"><div class="lab"><b>Reporting interval</b><span>Set from the gateway</span></div><div class="val">15 min <span class="pill ro">Read only</span></div></div>
+          </div>
+          <div class="btnrow"><div class="btn2">↧ Save to profile</div><div class="btn2">↪ Share settings</div></div>
+          <div class="apply"><span>))</span> Apply sensor settings</div>
+        </div>
+        <div class="navbar"><span>|||</span><span>◯</span><span>‹</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="legend-wrap">
+    <h2>Callouts and the requirements they implement</h2>
+    <table class="leg">
+      <tr><th>Screen</th><th></th><th>Requirement</th><th>What the screen does</th></tr>
+
+      <tr><td class="n" rowspan="6">iDOL53 Ammonia</td><td class="s">1</td><td class="q">REQ-A-01, 02</td>
+        <td>Opened as the dol-sensors product, not as a Milesight converter: the app bar names the article and carries the UC501 revision underneath.</td></tr>
+      <tr><td class="s">2</td><td class="q">REQ-A-04</td>
+        <td>Control first: power on and off as a toggle, restart as a separate action that keeps the configuration. At the top because a device that is off has nothing to read, so this is the first thing an installer needs.</td></tr>
+      <tr><td class="s">3</td><td class="q">New<span class="new">to add</span></td>
+        <td>Last measured value read from the sensor over NFC, with the time it was read. No requirement covers this yet — REQ-A-05 lists identity, network and power values only.</td></tr>
+      <tr><td class="s">4</td><td class="q">REQ-A-03</td>
+        <td>Revision with a plain verdict against the qualified list; an unqualified revision turns the row amber with the reason.</td></tr>
+      <tr><td class="s">5</td><td class="q">REQ-A-10</td>
+        <td>Region as one row with the alternatives named. The channel plan is written with the region and is not shown.</td></tr>
+      <tr><td class="s">6</td><td class="q">REQ-A-05</td>
+        <td>Supply state above battery level, battery labelled as backup, so a mains-powered unit reading 96 % is not mistaken for healthy when the supply is gone.</td></tr>
+
+      <tr><td class="n" rowspan="3">UC501 serial</td><td class="s">1</td><td class="q">REQ-A-04</td>
+        <td>Power and restart, in the same place on every device type.</td></tr>
+      <tr><td class="s">2</td><td class="q">New<span class="new">to add</span></td>
+        <td>Decoded serial value with the raw response length beside it, so a failed exchange is distinguishable from a zero reading.</td></tr>
+      <tr><td class="s">3</td><td class="q">REQ-A-07, 08</td>
+        <td>Named configuration on one row, opening the serial parameters, inside the same Device section every screen uses. Analog and pulse stay out while the standalone converter is out of scope.</td></tr>
+
+      <tr><td class="n" rowspan="4">EM500-CO2-T-H</td><td class="s">1</td><td class="q">REQ-A-04</td>
+        <td>Power and restart. Switching a battery sensor off is how it is stored or shipped without draining it.</td></tr>
+      <tr><td class="s">2</td><td class="q">New<span class="new">to add</span></td>
+        <td>Three measured values side by side. A multi-parameter sensor needs all of them on the screen; one hero value would hide the others.</td></tr>
+      <tr><td class="s">3</td><td class="q">REQ-A-10</td>
+        <td>Region changeable within the -915M band group.</td></tr>
+      <tr><td class="s">4</td><td class="q">REQ-A-05</td>
+        <td>Battery as service life on a battery-powered sensor — the opposite meaning to the UC501 row, so the wording differs deliberately.</td></tr>
+
+      <tr><td class="n" rowspan="3">EM300-TH</td><td class="s">1</td><td class="q">REQ-A-04</td>
+        <td>Power and restart, as on every device type.</td></tr>
+      <tr><td class="s">2</td><td class="q">New<span class="new">to add</span></td>
+        <td>Two measured values. The same card adapts to the number of parameters the sensor has.</td></tr>
+      <tr><td class="s">3</td><td class="q">REQ-A-11</td>
+        <td>Region shown without a chevron: on EU hardware there is nothing to choose, so the row reports and does not invite a tap. No explanation is shown — an EU installer has no other region to pick.</td></tr>
+    </table>
+  </div>
+
+  <footer>
+    Concept only. Where a screen and a requirement disagree, the requirement governs. Values are illustrative.
+    The channel plan is written with the region and never shown to the user. The reporting interval is read only
+    throughout — it is changed from the gateway. Showing the last measured value needs a new requirement in the
+    app specification, and confirmation that each device exposes its latest reading over NFC.
+  </footer>
+</div>
+</body>
+</html>

@@ -66,3 +66,35 @@ toolbox-sdk`: `patch-package` creates patches by reinstalling a clean copy from
 the registry, and `toolbox-sdk` is a local `file:` tarball that is not
 published. The format is identical, and `patch-package` applies it normally —
 verified by a clean reinstall.
+
+### Second hunk set: `DevicePasswordManager` encryption key
+
+The SDK built its device-password store with a hardcoded key:
+
+```js
+new Storage({
+  id: 'dp',
+  encryptionKey: '7fh4yC5XqG9SkACt2vcvY0333KbbP2lvMK7iDDCGVTE',
+});
+```
+
+The same literal is in every copy of the SDK and was verified present in our own
+production JS bundle. That is obfuscation, not encryption: one key break reads
+the stored device passwords of every installation, not just the phone in hand.
+
+The patch turns the eagerly-built static field into a lazily-built getter and
+adds `configurePasswordStorage({encryptionKey})`. Lazy is required because a
+per-install key comes from the OS keystore, which is async, while the original
+ran at module load.
+
+It **throws** when used unconfigured rather than falling back to a default. A
+silent downgrade to a shared key is exactly the failure being removed, and it
+would be invisible.
+
+Three files are patched so the change holds at runtime, in the shipped source,
+and in the types: `lib/module/.../DevicePasswordManager.js`,
+`src/.../DevicePasswordManager.ts`, and
+`lib/typescript/.../DevicePasswordManager.d.ts`.
+
+See `src/security/` for the app side and `docs/stage5-security-review.md` for
+the reasoning.

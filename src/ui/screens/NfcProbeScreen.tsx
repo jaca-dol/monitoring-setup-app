@@ -16,7 +16,9 @@ import {
   useColorScheme,
 } from 'react-native';
 
+import {describeInputConfig, identifyDevice} from '../../codec/deviceIdentity';
 import {WORKING_TITLE} from '../../config';
+import {capabilitiesFor} from '../../domain/device';
 import {
   clearLogs,
   formatLogs,
@@ -92,19 +94,14 @@ export function NfcProbeScreen(): React.JSX.Element {
 
   const logs = useSyncExternalStore(subscribeToLogs, getLogs);
 
-  const theme = isDark
-    ? {
-        bg: colors.backgroundDark,
-        fg: colors.textDark,
-        muted: colors.mutedDark,
-        border: colors.borderDark,
-      }
-    : {
-        bg: colors.background,
-        fg: colors.text,
-        muted: colors.muted,
-        border: colors.border,
-      };
+  // Diagnostics scaffolding, so it just borrows the light palette rather than
+  // carrying its own theme. The product screen is light-only per the concept.
+  const theme = {
+    bg: colors.page,
+    fg: colors.ink,
+    muted: colors.muted,
+    border: colors.divider,
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -400,9 +397,65 @@ function ReadReport({
   result: ProbeReadResult;
   theme: Theme;
 }): React.JSX.Element {
+  const identity = identifyDevice(result.deviceInfo);
+  const capabilities = capabilitiesFor(identity.typeId);
+  const inputs = describeInputConfig(result.deviceInfo);
+
   return (
     <View>
       <Text style={[styles.body, styles.success]}>Read OK</Text>
+
+      <Text style={[styles.label, {color: theme.muted}]}>
+        Stage 2 — identification
+      </Text>
+      <Row
+        label="Device"
+        value={identity.typeId ? identity.displayName : 'UNSUPPORTED'}
+        theme={theme}
+      />
+      <Row label="Model" value={identity.model || '(none)'} theme={theme} />
+      <Row
+        label="Band group"
+        value={
+          identity.supportedRegions.length
+            ? identity.supportedRegions.join(', ')
+            : 'unknown'
+        }
+        theme={theme}
+      />
+      <Row
+        label="Region"
+        value={`${identity.currentRegion ?? 'unknown'}${
+          identity.regionIsFixed ? ' (fixed)' : ''
+        }`}
+        theme={theme}
+      />
+      <Row
+        label="Firmware / hardware"
+        value={`${identity.firmwareVersion || '?'} / ${
+          identity.hardwareVersion || '?'
+        }`}
+        theme={theme}
+      />
+      <Row label="DevEUI" value={identity.devEui || '(none)'} theme={theme} />
+      {capabilities?.hasActiveInputConfig && (
+        <Row
+          label="Active input"
+          value={inputs.length ? inputs.join(', ') : 'none enabled'}
+          theme={theme}
+        />
+      )}
+      <Row
+        label="Key material stripped"
+        value={
+          result.removedSecrets.length
+            ? `${result.removedSecrets.length} field(s)`
+            : 'none present'
+        }
+        theme={theme}
+      />
+
+      <Text style={[styles.label, {color: theme.muted}]}>Transport</Text>
       <Row
         label="Raw bytes"
         value={String(result.rawByteCount)}

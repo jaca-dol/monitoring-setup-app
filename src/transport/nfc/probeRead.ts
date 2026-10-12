@@ -2,6 +2,7 @@ import NfcManager from 'react-native-nfc-manager';
 
 import {describeError} from './capability';
 import {resetNfcSession} from './session';
+import {stripKeyMaterial} from './stripKeys';
 import {applyNfcTiming, type TimingProfile} from './tuning';
 
 /**
@@ -25,7 +26,12 @@ export interface ProbeReadResult {
   decodedFieldNames: string[];
   /** Whether the payload carried a LoRaWAN AppKey — the REQ-A-15 question. */
   containsApplicationKey: boolean;
-  /** Full decoded payload, for on-screen inspection during bring-up only. */
+  /** Key-material fields that were present and have been stripped. */
+  removedSecrets: string[];
+  /**
+   * Decoded payload with all LoRaWAN key material removed (see `stripKeys`).
+   * This is the only form of the payload that leaves the transport layer.
+   */
   deviceInfo: Record<string, unknown>;
 }
 
@@ -161,17 +167,26 @@ export async function probeRead(
   }
 
   const rawData = Array.isArray(result.rawData) ? result.rawData : [];
-  const deviceInfo = result.deviceInfo ?? {};
+  const rawDeviceInfo = result.deviceInfo ?? {};
+
+  // Field names are captured before stripping, so the UI can still report what
+  // the device returned; the values leave the transport layer stripped.
+  const decodedFieldNames = Object.keys(rawDeviceInfo).sort();
+  const containsApplicationKey = Object.prototype.hasOwnProperty.call(
+    rawDeviceInfo,
+    'applicationKey',
+  );
+
+  const {payload: deviceInfo, removed: removedSecrets} =
+    stripKeyMaterial(rawDeviceInfo);
 
   return {
     rawByteCount: rawData.length,
     elapsedMs: Date.now() - startedAt,
     rawHexPreview: toHexPreview(rawData),
-    decodedFieldNames: Object.keys(deviceInfo).sort(),
-    containsApplicationKey: Object.prototype.hasOwnProperty.call(
-      deviceInfo,
-      'applicationKey',
-    ),
+    decodedFieldNames,
+    containsApplicationKey,
+    removedSecrets,
     deviceInfo,
   };
 }
